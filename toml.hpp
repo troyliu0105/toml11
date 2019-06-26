@@ -80,6 +80,7 @@ extern template std::basic_ostream<char, std::char_traits<char>>&
 operator<<(std::basic_ostream<char, std::char_traits<char>>&,
            const basic_value<preserve_comments, std::map, std::vector>&);
 
-#endif// TOML11_BUILD_LIBRARY
 } // toml
+#endif// TOML11_BUILD_LIBRARY
+
 #endif// TOML_FOR_MODERN_CPP
