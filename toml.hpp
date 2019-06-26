@@ -38,4 +38,48 @@
 #include "toml/serializer.hpp"
 #include "toml/get.hpp"
 
+#ifdef TOML11_BUILD_LIBRARY
+#include <map>
+namespace toml
+{
+
+extern template class basic_value<discard_comments,  std::unordered_map, std::vector>;
+extern template class basic_value<preserve_comments, std::unordered_map, std::vector>;
+extern template class basic_value<discard_comments,  std::map, std::vector>;
+extern template class basic_value<preserve_comments, std::map, std::vector>;
+
+extern template basic_value<discard_comments,  std::unordered_map, std::vector> parse(const std::string& fname);
+extern template basic_value<preserve_comments, std::unordered_map, std::vector> parse(const std::string& fname);
+extern template basic_value<discard_comments,  std::map, std::vector>           parse(const std::string& fname);
+extern template basic_value<preserve_comments, std::map, std::vector>           parse(const std::string& fname);
+
+extern template class serializer<discard_comments,  std::unordered_map, std::vector>;
+extern template class serializer<preserve_comments, std::unordered_map, std::vector>;
+extern template class serializer<discard_comments,  std::map, std::vector>;
+extern template class serializer<preserve_comments, std::map, std::vector>;
+
+extern template std::string
+format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool);
+extern template std::string
+format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool);
+extern template std::string
+format(const basic_value<discard_comments,  std::map, std::vector>&, std::size_t, int, bool);
+extern template std::string
+format(const basic_value<preserve_comments, std::map, std::vector>&, std::size_t, int, bool);
+
+extern template std::basic_ostream<char, std::char_traits<char>>&
+operator<<(std::basic_ostream<char, std::char_traits<char>>&,
+           const basic_value<discard_comments,  std::unordered_map, std::vector>&);
+extern template std::basic_ostream<char, std::char_traits<char>>&
+operator<<(std::basic_ostream<char, std::char_traits<char>>&,
+           const basic_value<preserve_comments, std::unordered_map, std::vector>&);
+extern template std::basic_ostream<char, std::char_traits<char>>&
+operator<<(std::basic_ostream<char, std::char_traits<char>>&,
+           const basic_value<discard_comments,  std::map, std::vector>&);
+extern template std::basic_ostream<char, std::char_traits<char>>&
+operator<<(std::basic_ostream<char, std::char_traits<char>>&,
+           const basic_value<preserve_comments, std::map, std::vector>&);
+
+#endif// TOML11_BUILD_LIBRARY
+} // toml
 #endif// TOML_FOR_MODERN_CPP
