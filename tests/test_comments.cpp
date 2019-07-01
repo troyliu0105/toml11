@@ -460,3 +460,55 @@ BOOST_AUTO_TEST_CASE(test_overwrite_comments)
         BOOST_TEST(u.as_integer() == 42);
     }
 }
+
+BOOST_AUTO_TEST_CASE(test_output_comments)
+{
+    using value_type = toml::basic_value<toml::preserve_comments>;
+    {
+        const value_type v(42, {"comment1", "comment2"});
+        std::ostringstream oss;
+        oss << v.comments();
+
+        std::ostringstream ref;
+        ref << "#comment1\n";
+        ref << "#comment2\n";
+
+        BOOST_TEST(oss.str() == ref.str());
+    }
+    {
+        const value_type v(42, {"comment1", "comment2"});
+        std::ostringstream oss;
+
+        // If v is not a table, toml11 assumes that user is writing something
+        // like the following.
+
+        oss << "answer = " << v;
+
+        BOOST_TEST(oss.str() == "answer = 42 #comment1comment2");
+    }
+
+    {
+        const value_type v(42, {"comment1", "comment2"});
+        std::ostringstream oss;
+
+        // If v is not a table, toml11 assumes that user is writing something
+        // like the following.
+
+        oss << toml::nocomment << "answer = " << v;
+
+        BOOST_TEST(oss.str() == "answer = 42");
+    }
+
+    {
+        const value_type v(42, {"comment1", "comment2"});
+        std::ostringstream oss;
+
+        // If v is not a table, toml11 assumes that user is writing something
+        // like the following.
+
+        oss << toml::nocomment << toml::showcomment << "answer = " << v;
+
+        BOOST_TEST(oss.str() == "answer = 42 #comment1comment2");
+    }
+
+}
