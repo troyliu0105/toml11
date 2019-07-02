@@ -94,6 +94,23 @@ int main()
 The convenient way is to add this repository as a git-submodule or to install
 it in your system by CMake.
 
+### Build a library
+
+This feature is optional.
+
+toml11 is designed to be a header-only library. Basically you don't need to
+build anything.
+
+But header-only library generally elongates a compilation time. To shorten the
+compilation process, it is useful to build a normal library that includes
+explicitly instantiated template classes and functions.
+
+toml11 provides a way to build a library. `toml.cpp` includes some explicit
+instantiations of template functions and classes with frequently used type
+parameters. To build `toml.cpp`, you need to pass a preprocessor macro,
+`TOML11_BUILD_LIBRARY`. To link a library, you also need to define
+`TOML11_BUILD_LIBRARY` before including `toml.hpp`.
+
 ## Decoding a toml file
 
 To parse a toml file, the only thing you have to do is
