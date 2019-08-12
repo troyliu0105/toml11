@@ -1464,6 +1464,19 @@ $ make test
 To run the language agnostic test suite, you need to compile
 `tests/check_toml_test.cpp` and pass it to the tester.
 
+## Linking library to reduce compilation times
+
+toml11 is a header only library but optionally you can compile it as a normal
+library that requires linking to reduce compilation time.
+
+To build it, add `TOML11_BUILD_LIBRARY` macro flag and compile `toml.cpp` as a
+library.
+
+To use it, you also need to define `TOML11_BUILD_LIBRARY` in your code before
+including `toml.hpp` and of course need to link the library.
+
+__NOTE__: CMake installation does not support this yet.
+
 ## Contributors
 
 I appreciate the help of the contributors who introduced the great feature to this library.
