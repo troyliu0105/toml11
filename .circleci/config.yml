@@ -15,6 +15,21 @@ jobs:
               g++ -std=c++11 -O2 -Wall -Wextra -Werror -I../ check_toml_test.cpp -o check_toml_test
               go get github.com/BurntSushi/toml-test
               $GOPATH/bin/toml-test ./check_toml_test
+  test_suite_link:
+    environment:
+      - GOPATH: /home/circleci/go
+    docker:
+      - image: circleci/golang:1.9
+    steps:
+      - checkout
+      - run:
+          command: |
+              g++ --version
+              g++ -std=c++11 -O2 -Wall -Wextra -Werror -DTOML11_BUILD_LIBRARY -c toml.cpp -o toml.o
+              cd tests/
+              g++ -std=c++11 -O2 -Wall -Wextra -Werror -I../ -DTOML11_BUILD_LIBRARY ../toml.o check_toml_test.cpp -o check_toml_test
+              go get github.com/BurntSushi/toml-test
+              $GOPATH/bin/toml-test ./check_toml_test
   test_serialization:
     docker:
       - image: circleci/buildpack-deps:bionic
