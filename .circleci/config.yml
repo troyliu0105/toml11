@@ -94,5 +94,6 @@ workflows:
   test:
     jobs:
       - test_suite
+      - test_suite_link
       - test_serialization
       - output_result
