@@ -22,10 +22,10 @@ template class serializer<preserve_comments, std::unordered_map, std::vector>;
 template class serializer<discard_comments,  std::map, std::vector>;
 template class serializer<preserve_comments, std::map, std::vector>;
 
-template std::string format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool);
-template std::string format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool);
-template std::string format(const basic_value<discard_comments,  std::map, std::vector>&, std::size_t, int, bool);
-template std::string format(const basic_value<preserve_comments, std::map, std::vector>&, std::size_t, int, bool);
+template std::string format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
+template std::string format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
+template std::string format(const basic_value<discard_comments,  std::map, std::vector>&, std::size_t, int, bool, bool);
+template std::string format(const basic_value<preserve_comments, std::map, std::vector>&, std::size_t, int, bool, bool);
 
 template std::ostream& operator<<(std::ostream&, const basic_value<discard_comments,  std::unordered_map, std::vector>&);
 template std::ostream& operator<<(std::ostream&, const basic_value<preserve_comments, std::unordered_map, std::vector>&);

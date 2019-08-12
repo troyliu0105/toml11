@@ -59,13 +59,13 @@ extern template class serializer<discard_comments,  std::map, std::vector>;
 extern template class serializer<preserve_comments, std::map, std::vector>;
 
 extern template std::string
-format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool);
+format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
 extern template std::string
-format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool);
+format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
 extern template std::string
-format(const basic_value<discard_comments,  std::map, std::vector>&, std::size_t, int, bool);
+format(const basic_value<discard_comments,  std::map, std::vector>&, std::size_t, int, bool, bool);
 extern template std::string
-format(const basic_value<preserve_comments, std::map, std::vector>&, std::size_t, int, bool);
+format(const basic_value<preserve_comments, std::map, std::vector>&, std::size_t, int, bool, bool);
 
 extern template std::basic_ostream<char, std::char_traits<char>>&
 operator<<(std::basic_ostream<char, std::char_traits<char>>&,
