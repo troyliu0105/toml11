@@ -33,6 +33,7 @@
 #    error "toml11 requires C++11 or later."
 #endif
 
+#include "toml_fwd.hpp"
 #include "toml/parser.hpp"
 #include "toml/literal.hpp"
 #include "toml/serializer.hpp"

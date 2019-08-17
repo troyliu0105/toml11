@@ -1622,8 +1622,8 @@ class basic_value
 
 // default toml::value and default array/table.
 using value = basic_value<discard_comments, std::unordered_map, std::vector>;
-using array = typename value::array_type;
-using table = typename value::table_type;
+using array = std::vector<value>;
+using table = std::unordered_map<key, value>;
 
 namespace detail
 {
