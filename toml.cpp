@@ -17,10 +17,10 @@ template basic_value<preserve_comments, std::unordered_map, std::vector> parse(c
 template basic_value<discard_comments,  std::map, std::vector>           parse(const std::string& fname);
 template basic_value<preserve_comments, std::map, std::vector>           parse(const std::string& fname);
 
-template class serializer<discard_comments,  std::unordered_map, std::vector>;
-template class serializer<preserve_comments, std::unordered_map, std::vector>;
-template class serializer<discard_comments,  std::map, std::vector>;
-template class serializer<preserve_comments, std::map, std::vector>;
+template struct serializer<discard_comments,  std::unordered_map, std::vector>;
+template struct serializer<preserve_comments, std::unordered_map, std::vector>;
+template struct serializer<discard_comments,  std::map, std::vector>;
+template struct serializer<preserve_comments, std::map, std::vector>;
 
 template std::string format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
 template std::string format(const basic_value<preserve_comments, std::unordered_map, std::vector>&, std::size_t, int, bool, bool);

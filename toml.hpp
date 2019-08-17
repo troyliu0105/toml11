@@ -53,10 +53,10 @@ extern template basic_value<preserve_comments, std::unordered_map, std::vector> 
 extern template basic_value<discard_comments,  std::map, std::vector>           parse(const std::string& fname);
 extern template basic_value<preserve_comments, std::map, std::vector>           parse(const std::string& fname);
 
-extern template class serializer<discard_comments,  std::unordered_map, std::vector>;
-extern template class serializer<preserve_comments, std::unordered_map, std::vector>;
-extern template class serializer<discard_comments,  std::map, std::vector>;
-extern template class serializer<preserve_comments, std::map, std::vector>;
+extern template struct serializer<discard_comments,  std::unordered_map, std::vector>;
+extern template struct serializer<preserve_comments, std::unordered_map, std::vector>;
+extern template struct serializer<discard_comments,  std::map, std::vector>;
+extern template struct serializer<preserve_comments, std::map, std::vector>;
 
 extern template std::string
 format(const basic_value<discard_comments,  std::unordered_map, std::vector>&, std::size_t, int, bool, bool);
