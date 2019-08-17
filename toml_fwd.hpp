@@ -23,10 +23,16 @@ using value = basic_value<discard_comments, std::unordered_map, std::vector>;
 using array = std::vector<value>;
 using table = std::unordered_map<key, value>;
 
+enum class value_t  : std::uint8_t;
+
 using boolean        = bool;
 using integer        = std::int64_t;
 using floating       = double;
+
+enum class string_t : std::uint8_t;
 struct string;
+
+enum class month_t  : std::uint8_t;
 struct local_date;
 struct local_time;
 struct local_datetime;
