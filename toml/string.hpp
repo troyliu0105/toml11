@@ -289,6 +289,14 @@ struct string
 #  define TOML11_GCC48X_WORKAROUND_RETURN_TYPE iterator
 #endif
 
+#ifdef TOML11_WORKAROUND_GCC_8_X_Y_STANDARD_LIBRARY_IMPLEMENTATION
+#  define TOML11_GCC8XY_WORKAROUND_ITERATOR    iterator
+#  define TOML11_GCC8XY_WORKAROUND_RETURN_TYPE void
+#else
+#  define TOML11_GCC8XY_WORKAROUND_ITERATOR    const_iterator
+#  define TOML11_GCC8XY_WORKAROUND_RETURN_TYPE iterator
+#endif
+
     string& insert(size_type pos1, const backend_type& t)
     {
         str.insert(pos1, t);
@@ -332,8 +340,8 @@ struct string
     {
         return str.insert(p, first, last);
     }
-    TOML11_GCC48X_WORKAROUND_RETURN_TYPE
-    insert(TOML11_GCC48X_WORKAROUND_ITERATOR p,
+    TOML11_GCC8XY_WORKAROUND_RETURN_TYPE
+    insert(TOML11_GCC8XY_WORKAROUND_ITERATOR p,
            std::initializer_list<value_type> il)
     {
         return str.insert(p, std::move(il));
@@ -425,6 +433,9 @@ struct string
     }
 
 #undef TOML11_GCC48X_WORKAROUND_ITERATOR
+#undef TOML11_GCC48X_WORKAROUND_RETURN_TYPE
+#undef TOML11_GCC8XY_WORKAROUND_ITERATOR
+#undef TOML11_GCC8XY_WORKAROUND_RETURN_TYPE
 
     // ------------------------------------------------------------------------
 

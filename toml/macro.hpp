@@ -27,10 +27,36 @@
 // `std::vector::iterator` instead of `std::vector::const_iterator`.
 // Because of the const-correctness, we cannot convert a `const_iterator` to
 // an `iterator`. It causes compilation error in GCC 4.8.5.
+//
 #if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) && !defined(__clang__)
 #  if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) <= 40805
 #    define TOML11_WORKAROUND_GCC_4_8_X_STANDARD_LIBRARY_IMPLEMENTATION
 #  endif
 #endif
+
+// Also, std::string::insert(..., initializer_list) has a bug of the same kind.
+// In GCC 8.x.y, std::basic_string::insert() with std::initializer_list has the
+// following signature.
+//
+// ```
+// void insert(iterator, initializer_list<charT>);
+// ```
+//
+// It is different from the spec. It should be
+//
+// ```
+// iterator insert(const_iterator, initializer_list<charT>);
+// ```
+//
+// We need to avoid this. This problem is resolved in GCC 9.
+//
+// cf. https://gcc.gnu.org/bugzilla/show_bug.cgi?id=83328
+//
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__) && !defined(__clang__)
+#  if (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__) < 90000
+#    define TOML11_WORKAROUND_GCC_8_X_Y_STANDARD_LIBRARY_IMPLEMENTATION
+#  endif
+#endif
+
 
 #endif// TOML11_MACRO_HPP
