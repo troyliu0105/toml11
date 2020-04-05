@@ -133,6 +133,8 @@ struct preserve_comments
     {
         return comments.erase(first, last);
     }
+#undef TOML11_GCC48X_WORKAROUND_ITERATOR
+#undef TOML11_GCC48X_WORKAROUND_RETURN_TYPE
 
     void swap(preserve_comments& other) {comments.swap(other.comments);}
 
