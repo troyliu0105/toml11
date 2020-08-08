@@ -22,7 +22,7 @@ namespace detail
 
 // to show error messages. not recommended for users.
 template<typename Value>
-inline region_base const* get_region(const Value& v)
+inline region const* get_region(const Value& v)
 {
     return v.region_info_.get();
 }
@@ -36,7 +36,7 @@ void change_region(Value& v, region reg)
 
 template<value_t Expected, typename Value>
 [[noreturn]] inline void
-throw_bad_cast(const std::string& funcname, value_t actual, const Value& v)
+throw_bad_cast(const char* funcname, value_t actual, const Value& v)
 {
     throw type_error(detail::format_underline(
         concat_to_string(funcname, "bad_cast to ", Expected), {
@@ -167,8 +167,6 @@ class basic_value
         (void)tmp;
     }
 
-    using region_base = detail::region_base;
-
     template<typename C, template<typename ...> class T,
              template<typename ...> class A>
     friend class basic_value;
@@ -192,8 +190,7 @@ class basic_value
   public:
 
     basic_value() noexcept
-        : type_(value_t::empty),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::empty), region_info_(nullptr)
     {}
     ~basic_value() noexcept {this->cleanup();}
 
@@ -430,8 +427,7 @@ class basic_value
     // boolean ==============================================================
 
     basic_value(boolean b)
-        : type_(value_t::boolean),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::boolean), region_info_(nullptr)
     {
         assigner(this->boolean_, b);
     }
@@ -439,13 +435,12 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::boolean;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->boolean_, b);
         return *this;
     }
     basic_value(boolean b, std::vector<std::string> comments)
-        : type_(value_t::boolean),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::boolean), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->boolean_, b);
@@ -457,8 +452,7 @@ class basic_value
         std::is_integral<T>, detail::negation<std::is_same<T, boolean>>>::value,
         std::nullptr_t>::type = nullptr>
     basic_value(T i)
-        : type_(value_t::integer),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::integer), region_info_(nullptr)
     {
         assigner(this->integer_, static_cast<integer>(i));
     }
@@ -470,7 +464,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::integer;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->integer_, static_cast<integer>(i));
         return *this;
     }
@@ -479,8 +473,7 @@ class basic_value
         std::is_integral<T>, detail::negation<std::is_same<T, boolean>>>::value,
         std::nullptr_t>::type = nullptr>
     basic_value(T i, std::vector<std::string> comments)
-        : type_(value_t::integer),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::integer), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->integer_, static_cast<integer>(i));
@@ -491,8 +484,7 @@ class basic_value
     template<typename T, typename std::enable_if<
         std::is_floating_point<T>::value, std::nullptr_t>::type = nullptr>
     basic_value(T f)
-        : type_(value_t::floating),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::floating), region_info_(nullptr)
     {
         assigner(this->floating_, static_cast<floating>(f));
     }
@@ -504,7 +496,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::floating;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->floating_, static_cast<floating>(f));
         return *this;
     }
@@ -512,8 +504,7 @@ class basic_value
     template<typename T, typename std::enable_if<
         std::is_floating_point<T>::value, std::nullptr_t>::type = nullptr>
     basic_value(T f, std::vector<std::string> comments)
-        : type_(value_t::floating),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::floating), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->floating_, f);
@@ -522,8 +513,7 @@ class basic_value
     // string ===============================================================
 
     basic_value(toml::string s)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, std::move(s));
     }
@@ -531,21 +521,19 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::string ;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->string_, s);
         return *this;
     }
     basic_value(toml::string s, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, std::move(s));
     }
 
     basic_value(std::string s)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(std::move(s)));
     }
@@ -553,34 +541,30 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::string ;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->string_, toml::string(std::move(s)));
         return *this;
     }
     basic_value(std::string s, string_t kind)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(std::move(s), kind));
     }
     basic_value(std::string s, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(std::move(s)));
     }
     basic_value(std::string s, string_t kind, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(std::move(s), kind));
     }
 
     basic_value(const char* s)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(std::string(s)));
     }
@@ -588,26 +572,23 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::string ;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->string_, toml::string(std::string(s)));
         return *this;
     }
     basic_value(const char* s, string_t kind)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(std::string(s), kind));
     }
     basic_value(const char* s, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(std::string(s)));
     }
     basic_value(const char* s, string_t kind, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(std::string(s), kind));
@@ -615,8 +596,7 @@ class basic_value
 
 #if __cplusplus >= 201703L
     basic_value(std::string_view s)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(s));
     }
@@ -624,26 +604,23 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::string ;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->string_, toml::string(s));
         return *this;
     }
     basic_value(std::string_view s, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(s));
     }
     basic_value(std::string_view s, string_t kind)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::string), region_info_(nullptr)
     {
         assigner(this->string_, toml::string(s, kind));
     }
     basic_value(std::string_view s, string_t kind, std::vector<std::string> comments)
-        : type_(value_t::string),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::string), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->string_, toml::string(s, kind));
@@ -653,8 +630,7 @@ class basic_value
     // local date ===========================================================
 
     basic_value(const local_date& ld)
-        : type_(value_t::local_date),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::local_date), region_info_(nullptr)
     {
         assigner(this->local_date_, ld);
     }
@@ -662,13 +638,12 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::local_date;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->local_date_, ld);
         return *this;
     }
     basic_value(const local_date& ld, std::vector<std::string> comments)
-        : type_(value_t::local_date),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::local_date), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->local_date_, ld);
@@ -677,14 +652,12 @@ class basic_value
     // local time ===========================================================
 
     basic_value(const local_time& lt)
-        : type_(value_t::local_time),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::local_time), region_info_(nullptr)
     {
         assigner(this->local_time_, lt);
     }
     basic_value(const local_time& lt, std::vector<std::string> comments)
-        : type_(value_t::local_time),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::local_time), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->local_time_, lt);
@@ -693,23 +666,21 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::local_time;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->local_time_, lt);
         return *this;
     }
 
     template<typename Rep, typename Period>
     basic_value(const std::chrono::duration<Rep, Period>& dur)
-        : type_(value_t::local_time),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::local_time), region_info_(nullptr)
     {
         assigner(this->local_time_, local_time(dur));
     }
     template<typename Rep, typename Period>
     basic_value(const std::chrono::duration<Rep, Period>& dur,
                 std::vector<std::string> comments)
-        : type_(value_t::local_time),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::local_time), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->local_time_, local_time(dur));
@@ -719,7 +690,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::local_time;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->local_time_, local_time(dur));
         return *this;
     }
@@ -727,14 +698,12 @@ class basic_value
     // local datetime =======================================================
 
     basic_value(const local_datetime& ldt)
-        : type_(value_t::local_datetime),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::local_datetime), region_info_(nullptr)
     {
         assigner(this->local_datetime_, ldt);
     }
     basic_value(const local_datetime& ldt, std::vector<std::string> comments)
-        : type_(value_t::local_datetime),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::local_datetime), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->local_datetime_, ldt);
@@ -743,7 +712,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::local_datetime;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->local_datetime_, ldt);
         return *this;
     }
@@ -751,14 +720,12 @@ class basic_value
     // offset datetime ======================================================
 
     basic_value(const offset_datetime& odt)
-        : type_(value_t::offset_datetime),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::offset_datetime), region_info_(nullptr)
     {
         assigner(this->offset_datetime_, odt);
     }
     basic_value(const offset_datetime& odt, std::vector<std::string> comments)
-        : type_(value_t::offset_datetime),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::offset_datetime), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->offset_datetime_, odt);
@@ -767,20 +734,18 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::offset_datetime;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->offset_datetime_, odt);
         return *this;
     }
     basic_value(const std::chrono::system_clock::time_point& tp)
-        : type_(value_t::offset_datetime),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::offset_datetime), region_info_(nullptr)
     {
         assigner(this->offset_datetime_, offset_datetime(tp));
     }
     basic_value(const std::chrono::system_clock::time_point& tp,
                 std::vector<std::string> comments)
-        : type_(value_t::offset_datetime),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::offset_datetime), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->offset_datetime_, offset_datetime(tp));
@@ -789,7 +754,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::offset_datetime;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->offset_datetime_, offset_datetime(tp));
         return *this;
     }
@@ -797,14 +762,12 @@ class basic_value
     // array ================================================================
 
     basic_value(const array_type& ary)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::array), region_info_(nullptr)
     {
         assigner(this->array_, ary);
     }
     basic_value(const array_type& ary, std::vector<std::string> comments)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::array), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->array_, ary);
@@ -813,7 +776,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::array ;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->array_, ary);
         return *this;
     }
@@ -824,8 +787,7 @@ class basic_value
             std::is_convertible<T, value_type>::value,
         std::nullptr_t>::type = nullptr>
     basic_value(std::initializer_list<T> list)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::array), region_info_(nullptr)
     {
         array_type ary(list.begin(), list.end());
         assigner(this->array_, std::move(ary));
@@ -834,8 +796,7 @@ class basic_value
             std::is_convertible<T, value_type>::value,
         std::nullptr_t>::type = nullptr>
     basic_value(std::initializer_list<T> list, std::vector<std::string> comments)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::array), region_info_(nullptr),
           comments_(std::move(comments))
     {
         array_type ary(list.begin(), list.end());
@@ -848,7 +809,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::array;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
 
         array_type ary(list.begin(), list.end());
         assigner(this->array_, std::move(ary));
@@ -862,8 +823,7 @@ class basic_value
             detail::is_container<T>
         >::value, std::nullptr_t>::type = nullptr>
     basic_value(const T& list)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::array), region_info_(nullptr)
     {
         static_assert(std::is_convertible<typename T::value_type, value_type>::value,
             "elements of a container should be convertible to toml::value");
@@ -877,8 +837,7 @@ class basic_value
             detail::is_container<T>
         >::value, std::nullptr_t>::type = nullptr>
     basic_value(const T& list, std::vector<std::string> comments)
-        : type_(value_t::array),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::array), region_info_(nullptr),
           comments_(std::move(comments))
     {
         static_assert(std::is_convertible<typename T::value_type, value_type>::value,
@@ -899,7 +858,7 @@ class basic_value
 
         this->cleanup();
         this->type_ = value_t::array;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
 
         array_type ary(list.size());
         std::copy(list.begin(), list.end(), ary.begin());
@@ -910,14 +869,12 @@ class basic_value
     // table ================================================================
 
     basic_value(const table_type& tab)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::table), region_info_(nullptr)
     {
         assigner(this->table_, tab);
     }
     basic_value(const table_type& tab, std::vector<std::string> comments)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::table), region_info_(nullptr),
           comments_(std::move(comments))
     {
         assigner(this->table_, tab);
@@ -926,7 +883,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::table;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
         assigner(this->table_, tab);
         return *this;
     }
@@ -934,8 +891,7 @@ class basic_value
     // initializer-list ------------------------------------------------------
 
     basic_value(std::initializer_list<std::pair<key, basic_value>> list)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::table), region_info_(nullptr)
     {
         table_type tab;
         for(const auto& elem : list) {tab[elem.first] = elem.second;}
@@ -944,8 +900,7 @@ class basic_value
 
     basic_value(std::initializer_list<std::pair<key, basic_value>> list,
                 std::vector<std::string> comments)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::table), region_info_(nullptr),
           comments_(std::move(comments))
     {
         table_type tab;
@@ -956,7 +911,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::table;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
 
         table_type tab;
         for(const auto& elem : list) {tab[elem.first] = elem.second;}
@@ -971,8 +926,7 @@ class basic_value
             detail::is_map<Map>
         >::value, std::nullptr_t>::type = nullptr>
     basic_value(const Map& mp)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{}))
+        : type_(value_t::table), region_info_(nullptr)
     {
         table_type tab;
         for(const auto& elem : mp) {tab[elem.first] = elem.second;}
@@ -983,8 +937,7 @@ class basic_value
             detail::is_map<Map>
         >::value, std::nullptr_t>::type = nullptr>
     basic_value(const Map& mp, std::vector<std::string> comments)
-        : type_(value_t::table),
-          region_info_(std::make_shared<region_base>(region_base{})),
+        : type_(value_t::table), region_info_(nullptr),
           comments_(std::move(comments))
     {
         table_type tab;
@@ -999,7 +952,7 @@ class basic_value
     {
         this->cleanup();
         this->type_ = value_t::table;
-        this->region_info_ = std::make_shared<region_base>(region_base{});
+        this->region_info_ = nullptr;
 
         table_type tab;
         for(const auto& elem : mp) {tab[elem.first] = elem.second;}
@@ -1680,7 +1633,14 @@ class basic_value
 
     source_location location() const
     {
-        return source_location(this->region_info_.get());
+        if(this->region_info_)
+        {
+            return source_location(*region_info_);
+        }
+        else
+        {
+            return source_location{};
+        }
     }
 
     comment_type const& comments() const noexcept {return this->comments_;}
@@ -1701,7 +1661,7 @@ class basic_value
 
     // for error messages
     template<typename Value>
-    friend region_base const* detail::get_region(const Value& v);
+    friend detail::region const* detail::get_region(const Value& v);
 
     template<typename Value>
     friend void detail::change_region(Value& v, detail::region reg);
@@ -1725,8 +1685,8 @@ class basic_value
         array_storage   array_;
         table_storage   table_;
     };
-    std::shared_ptr<region_base> region_info_;
-    comment_type                 comments_;
+    std::shared_ptr<detail::region> region_info_;
+    comment_type                    comments_;
 };
 
 // default toml::value and default array/table.
