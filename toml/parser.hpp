@@ -1162,7 +1162,7 @@ bool is_valid_forward_table_definition(const Value& fwd,
         Iterator key_first, Iterator key_curr, Iterator key_last)
 {
     std::string internal = "";
-    if(const auto ptr = detail::get_region(fwd))
+    if(const auto ptr = ::toml::detail::get_region(fwd))
     {
         internal = ptr->str();
     }
@@ -1288,7 +1288,7 @@ insert_nested_key(typename Value::table_type& root, const Value& v,
                     // that points to the key of the table (e.g. [[a]]). By
                     // comparing the first two letters in key, we can detect
                     // the array-of-table is inline or multiline.
-                    if(const auto ptr = detail::get_region(a.front()))
+                    if(const auto ptr = ::toml::detail::get_region(a.front()))
                     {
                         if(ptr->str().substr(0,2) != "[[")
                         {
@@ -1387,7 +1387,7 @@ insert_nested_key(typename Value::table_type& root, const Value& v,
                 // According to toml-lang/toml:36d3091b3 "Clarify that inline
                 // tables are immutable", check if it adds key-value pair to an
                 // inline table.
-                if(const auto* ptr = get_region(tab->at(k)))
+                if(const auto ptr = ::toml::detail::get_region(tab->at(k)))
                 {
                     // here, if the value is a (multi-line) table, the region
                     // should be something like `[table-name]`.
