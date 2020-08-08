@@ -43,24 +43,6 @@ struct source_location
           file_name_("unknown file"), line_str_("")
     {}
 
-    explicit source_location(const detail::region_base* reg)
-        : line_num_(1), column_num_(1), region_size_(1),
-          file_name_("unknown file"), line_str_("")
-    {
-        if(reg)
-        {
-            if(reg->line_num() != detail::region_base().line_num())
-            {
-                line_num_ = static_cast<std::uint_least32_t>(
-                        std::stoul(reg->line_num()));
-            }
-            column_num_  = static_cast<std::uint_least32_t>(reg->before() + 1);
-            region_size_ = static_cast<std::uint_least32_t>(reg->size());
-            file_name_   = reg->name();
-            line_str_    = reg->line();
-        }
-    }
-
     explicit source_location(const detail::region& reg)
         : line_num_(static_cast<std::uint_least32_t>(std::stoul(reg.line_num()))),
           column_num_(static_cast<std::uint_least32_t>(reg.before() + 1)),
