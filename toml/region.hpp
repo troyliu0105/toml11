@@ -29,45 +29,12 @@ inline std::string make_string(std::size_t len, char c)
     return std::string(len, c);
 }
 
-// region_base is a base class of location and region that are defined below.
-// it will be used to generate better error messages.
-struct region_base
-{
-    region_base() = default;
-    virtual ~region_base() = default;
-    region_base(const region_base&) = default;
-    region_base(region_base&&     ) = default;
-    region_base& operator=(const region_base&) = default;
-    region_base& operator=(region_base&&     ) = default;
-
-    virtual bool is_ok()           const noexcept {return false;}
-    virtual char front()           const noexcept {return '\0';}
-
-    virtual std::string str()      const {return std::string("unknown region");}
-    virtual std::string name()     const {return std::string("unknown file");}
-    virtual std::string line()     const {return std::string("unknown line");}
-    virtual std::string line_num() const {return std::string("?");}
-
-    // length of the region
-    virtual std::size_t size()     const noexcept {return 0;}
-    // number of characters in the line before the region
-    virtual std::size_t before()   const noexcept {return 0;}
-    // number of characters in the line after the region
-    virtual std::size_t after()    const noexcept {return 0;}
-
-    virtual std::vector<std::string> comments() const {return {};}
-    // ```toml
-    // # comment_before
-    // key = "value" # comment_inline
-    // ```
-};
-
 // location represents a position in a container, which contains a file content.
 // it can be considered as a region that contains only one character.
 //
 // it contains pointer to the file content and iterator that points the current
 // location.
-struct location final : public region_base
+struct location
 {
     using const_iterator  = typename std::vector<char>::const_iterator;
     using difference_type = typename const_iterator::difference_type;
@@ -88,8 +55,8 @@ struct location final : public region_base
     location& operator=(location&&)      = default;
     ~location() = default;
 
-    bool is_ok() const noexcept override {return static_cast<bool>(source_);}
-    char front() const noexcept override {return *iter_;}
+    bool is_ok() const noexcept {return static_cast<bool>(source_);}
+    char front() const noexcept {return *iter_;}
 
     // this const prohibits codes like `++(loc.iter())`.
     const const_iterator iter()  const noexcept {return iter_;}
@@ -137,15 +104,15 @@ struct location final : public region_base
         return;
     }
 
-    std::string str()  const override {return make_string(1, *this->iter());}
-    std::string name() const override {return source_name_;}
+    std::string str()  const {return make_string(1, *this->iter());}
+    std::string name() const {return source_name_;}
 
-    std::string line_num() const override
+    std::string line_num() const
     {
         return std::to_string(this->line_number_);
     }
 
-    std::string line() const override
+    std::string line() const
     {
         return make_string(this->line_begin(), this->line_end());
     }
@@ -162,17 +129,17 @@ struct location final : public region_base
     }
 
     // location is always points a character. so the size is 1.
-    std::size_t size() const noexcept override
+    std::size_t size() const noexcept
     {
         return 1u;
     }
-    std::size_t before() const noexcept override
+    std::size_t before() const noexcept
     {
         const auto sz = std::distance(this->line_begin(), this->iter());
         assert(sz >= 0);
         return static_cast<std::size_t>(sz);
     }
-    std::size_t after() const noexcept override
+    std::size_t after() const noexcept
     {
         const auto sz = std::distance(this->iter(), this->line_end());
         assert(sz >= 0);
@@ -194,7 +161,7 @@ struct location final : public region_base
 //
 // it contains pointer to the file content and iterator that points the first
 // and last location.
-struct region final : public region_base
+struct region
 {
     using const_iterator = typename std::vector<char>::const_iterator;
     using source_ptr     = std::shared_ptr<const std::vector<char>>;
@@ -234,11 +201,11 @@ struct region final : public region_base
         return *this;
     }
 
-    bool is_ok() const noexcept override {return static_cast<bool>(source_);}
-    char front() const noexcept override {return *first_;}
+    bool is_ok() const noexcept {return static_cast<bool>(source_);}
+    char front() const noexcept {return *first_;}
 
-    std::string str()  const override {return make_string(first_, last_);}
-    std::string line() const override
+    std::string str()  const {return make_string(first_, last_);}
+    std::string line() const
     {
         if(this->contain_newline())
         {
@@ -247,24 +214,24 @@ struct region final : public region_base
         }
         return make_string(this->line_begin(), this->line_end());
     }
-    std::string line_num() const override
+    std::string line_num() const
     {
         return std::to_string(1 + std::count(this->begin(), this->first(), '\n'));
     }
 
-    std::size_t size() const noexcept override
+    std::size_t size() const noexcept
     {
         const auto sz = std::distance(first_, last_);
         assert(sz >= 0);
         return static_cast<std::size_t>(sz);
     }
-    std::size_t before() const noexcept override
+    std::size_t before() const noexcept
     {
         const auto sz = std::distance(this->line_begin(), this->first());
         assert(sz >= 0);
         return static_cast<std::size_t>(sz);
     }
-    std::size_t after() const noexcept override
+    std::size_t after() const noexcept
     {
         const auto sz = std::distance(this->last(), this->line_end());
         assert(sz >= 0);
@@ -295,9 +262,9 @@ struct region final : public region_base
     source_ptr const& source() const& noexcept {return source_;}
     source_ptr&&      source() &&     noexcept {return std::move(source_);}
 
-    std::string name() const override {return source_name_;}
+    std::string name() const {return source_name_;}
 
-    std::vector<std::string> comments() const override
+    std::vector<std::string> comments() const
     {
         // assuming the current region (`*this`) points a value.
         // ```toml
