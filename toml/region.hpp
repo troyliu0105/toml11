@@ -12,7 +12,8 @@
 #include "color.hpp"
 
 // fix rk3588 4.9 gnustl_static
-#if (__GNUC__==4 && __GNUC_MINOR__==9) && defined(RM_ANDROID)
+#if (__GNUC__==4 && __GNUC_MINOR__==9) && !defined(FIX_GNUSTL_4_9)
+#define FIX_GNUSTL_4_9
 #include <stdio.h>
 #include <stdlib.h>
 #include <ext/string_conversions.h>
